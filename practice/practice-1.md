@@ -8,13 +8,13 @@ In this task we will prepare our development environment, install dbt with the a
 
 First you need to create a repository for your on GitHub. You can name it `dbt-from-scratch` or any other name you like. Make it Public, add a README and `.gitignore` file for Python.
 
-<img src="./img/1-1-create-repo.png" style="box-shadow: 1px 1px 4px 1px; border-radius: 2px;">
+![Create repo](./img/1-1-create-repo.png)
 
 You can clone the repository to your local machine using `git clone` command.
 
 Alternatively, you can use GitHub Codespaces to create a new environment directly in the browser. Just click on the `Code` button and select `Create codespace on main`.
 
-<img src="./img/1-2-open-codespaces.png" style="box-shadow: 1px 1px 4px 1px; border-radius: 2px;">
+![Open Codespaces](./img/1-2-open-codespaces.png)
 
 Next step is to prepare Python environment. If you work locally on your machine, you can create a virtual environment with:
 
