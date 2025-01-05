@@ -62,6 +62,17 @@ This should return the version of dbt you have installed.
 
 ## Step 3: Bootstrap the project
 
+Before we can start working with dbt, we need to connect to a database. In this course we will use Snowflake as a database.
+
+To connect to Snowflake you need to login with your temporary account:
+
+1. Go to https://sd96455.us-central1.gcp.snowflakecomputing.com/
+2. Login with the following credentials:
+   - Username: (ask the instructor for the username)
+   - Password: `p@ssw0rd`
+   and change the password upon first login (please remember this password)
+3. If you successfully logged in, you can proceed to the next step.
+
 Now we can bootstrap the project with dbt. Run the following command:
 
 ```bash
@@ -73,18 +84,16 @@ You gonna need to add the following information:
 2. the adapter you want to use, e.g. `snowflake`
 3. specify the credentials to the database (see example for Snowflake below)
 
-**// TODO: add real creds here //**
-
 For Snowflake you need to provide the following information:
 
 | Parameter             | Value                                                     |
 | --------              | -------                                                   |
-| account               | nd38925                                                   |
-| user                  | dbt_<your_username>                                       |
+| account               | sd96455.us-central1.gcp                                   |
+| user                  | <your_username>                                           |
 | authentication type   | [1] password                                              |
 | password              | <your_password> (it won't be visible in the terminal)     |
-| role (dev role)       | dbt_student                                               |
-| warehouse             | dbt_students_xs                                           |
+| role (dev role)       | student__b_role                                           |
+| warehouse             | student_wh                                                |
 | database              | dev                                                       |
 | schema                | dbt_<your_username>                                       |
 | threads               | 4                                                         |
