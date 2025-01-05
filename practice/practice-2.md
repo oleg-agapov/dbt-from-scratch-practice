@@ -80,11 +80,11 @@ In this task we will solve two practical problems.
 
 First, we want to know total historical sales for each product, plus information about product category, suppliers and units in stock. That would give our business stakeholders info about products performance and inventory levels.
 
-Second, we want to know if we need to reassign salesmen in case if there are big customers who are attached to an employee who is no longer with the company. This will help us to keep our customers happy and maintain good relationships.
+Second, find last 5 customers of each salesman that are no longer work in the company. This will help us reassign salesperson for such customers to keep them happy and maintain good relationships.
 
 You got two SQL queries from data analysts.
 
-Create two new files in the `models` directory: `product_info.sql` and `customer_salesman.sql`. Copy the queries into the files.
+Create two new files in the `models` directory: `product_info.sql` and `retired_salesmen.sql`. Copy the queries into the files.
 
 <details>
   <summary>product_info.sql</summary>
@@ -132,38 +132,38 @@ Create two new files in the `models` directory: `product_info.sql` and `customer
 
 
 <details>
-  <summary>customer_salesman.sql</summary>
+  <summary>retired_salesmen.sql</summary>
   
   ```sql
   with
+    employee_status as (
+        select column1 as status_id, column2 as status_name
+        from values 
+            (0,'Active'),
+            (-1,'Suspended'),
+            (-2,'Terminated'),
+            (-3,'Retired')
+    ),
 
-  employee_per_customer as (
-      select
-          customer_id,
-          employee_id
-      from raw.dunder_mifflin.orders
-      qualify row_number() over (partition by customer_id order by order_date desc) = 1
-  ),
+    last_customers as (
+        select 
+            employee_id, 
+            customer_id,    
+        from raw.dunder_mifflin.orders
+        qualify dense_rank() over(partition by employee_id order by order_date desc, order_id) <= 5
+    )
 
-  employee_status as (
-      select column1 as status_id, column2 as status_name
-      from values 
-          (0,'Active'),
-          (-1,'Suspended'),
-          (-2,'Terminated'),
-          (-3,'Retired')
-  )
-
-  select
-      employee_per_customer.customer_id,
-      employee_per_customer.employee_id,
-      employees.first_name || ' ' || employees.last_name as employee_full_name,
-      employee_status.status_name
-  from employee_per_customer
-  left join raw.dunder_mifflin.employees as employees 
-      on employees.employee_id = employee_per_customer.employee_id
-  left join employee_status on employee_status.status_id = employees.employee_status_id
-  order by employee_status.status_id desc
+    select
+        last_customers.employee_id,
+        employees.first_name || ' ' || employees.last_name as employee_full_name,
+        last_customers.customer_id,
+        customers.company_name,
+        employee_status.status_name
+    from last_customers
+    left join raw.dunder_mifflin.employees on employees.employee_id = last_customers.employee_id
+    left join employee_status on employee_status.status_id = employees.employee_status_id
+    left join raw.dunder_mifflin.customers on customers.customer_id = last_customers.customer_id
+    where employee_status.status_name in ('Suspended', 'Terminated', 'Retired')
   ```
 </details>
 
@@ -182,9 +182,9 @@ dbt run
 You should see somewhat similar output to this:
 
 ```bash
-1 of 2 START sql view model dbt_oleg.customer_salesman ......................... [RUN]
+1 of 2 START sql view model dbt_oleg.retired_salesmen ......................... [RUN]
 2 of 2 START sql view model dbt_oleg.product_info .............................. [RUN]
-1 of 2 OK created sql view model dbt_oleg.customer_salesman .................... [SUCCESS 1 in 0.58s]
+1 of 2 OK created sql view model dbt_oleg.retired_salesmen .................... [SUCCESS 1 in 0.58s]
 2 of 2 OK created sql view model dbt_oleg.product_info ......................... [SUCCESS 1 in 1.22s]
 
 Finished running 2 view models in 0 hours 0 minutes and 2.63 seconds (2.63s).
@@ -223,12 +223,13 @@ dbt run -s product_info
 
 The model should run successfully. If you see any errors, check the SQL code for typos.
 
-Now let's do the same with the `customer_salesman.sql` model.
+Now let's do the same with the `retired_salesmen.sql` model.
 
-There you will see two places where we are using `raw.dunder_mifflin` schema:
+There you will see several places where we are using `raw.dunder_mifflin` schema:
 
 - `raw.dunder_mifflin.orders` -> `{{ source('dunder_mifflin', 'orders') }}`
 - `raw.dunder_mifflin.employees` -> `{{ source('dunder_mifflin', 'employees') }}`
+- `raw.dunder_mifflin.customers` -> `{{ source('dunder_mifflin', 'customers') }}`
 
 Another improvement we could make is to replace the hardcoded values in the `employee_status` CTE with a reference to the seed data.
 
@@ -244,7 +245,7 @@ employee_status as (
 Now re-run the `dbt run` command to see if everything is still working:
 
 ```bash
-dbt run -s customer_salesman
+dbt run -s retired_salesmen
 ```
 
 Commit your changes to the repository.
