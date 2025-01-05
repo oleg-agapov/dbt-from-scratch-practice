@@ -34,6 +34,7 @@ sources:
       - name: order_details
       - name: orders
       - name: products
+      - name: shippers
       - name: suppliers
 ```
 
