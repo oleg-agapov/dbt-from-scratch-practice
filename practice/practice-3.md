@@ -8,9 +8,9 @@ In this practice, we will improve the project by refactoring the models to model
 
 Staging layer id one-to-one reflection of source tables in the data warehouse.
 
-Create a new directory `models/staging`. Inside of staging folder we usually create structure that reflects our datasource. In our case we could create a subfolder called `dunder_mifflin`, because all our data is coming from that source.
+Create a new directory `models/staging`. Inside of staging folder we usually create structure that reflects our datasource. In our case we could create a subfolder called `/dunder_mifflin`, because all our data is coming from that source.
 
-Inside of `dunder_mifflin` let's create several files:
+Inside of `models/staging/dunder_mifflin` let's create several files:
 
 
 <details>
@@ -256,6 +256,33 @@ dbt run -s staging
 
 > Note: Existing `sources.yml` can be deleted.
 
+You should see something like this:
+```bash
+...
+1 of 8 START sql view model dbt_oleg.stg_dunder_mifflin__categories ............ [RUN]
+2 of 8 START sql view model dbt_oleg.stg_dunder_mifflin__customers ............. [RUN]
+3 of 8 START sql view model dbt_oleg.stg_dunder_mifflin__employees ............. [RUN]
+4 of 8 START sql view model dbt_oleg.stg_dunder_mifflin__order_details ......... [RUN]
+5 of 8 START sql view model dbt_oleg.stg_dunder_mifflin__orders ................ [RUN]
+6 of 8 START sql view model dbt_oleg.stg_dunder_mifflin__products .............. [RUN]
+7 of 8 START sql view model dbt_oleg.stg_dunder_mifflin__shippers .............. [RUN]
+8 of 8 START sql view model dbt_oleg.stg_dunder_mifflin__suppliers ............. [RUN]
+1 of 8 OK created sql view model dbt_oleg.stg_dunder_mifflin__categories ....... [SUCCESS 1 in 0.60s]
+8 of 8 OK created sql view model dbt_oleg.stg_dunder_mifflin__suppliers ........ [SUCCESS 1 in 0.98s]
+3 of 8 OK created sql view model dbt_oleg.stg_dunder_mifflin__employees ........ [SUCCESS 1 in 1.00s]
+7 of 8 OK created sql view model dbt_oleg.stg_dunder_mifflin__shippers ......... [SUCCESS 1 in 1.01s]
+6 of 8 OK created sql view model dbt_oleg.stg_dunder_mifflin__products ......... [SUCCESS 1 in 1.05s]
+4 of 8 OK created sql view model dbt_oleg.stg_dunder_mifflin__order_details .... [SUCCESS 1 in 1.05s]
+2 of 8 OK created sql view model dbt_oleg.stg_dunder_mifflin__customers ........ [SUCCESS 1 in 1.08s]
+5 of 8 OK created sql view model dbt_oleg.stg_dunder_mifflin__orders ........... [SUCCESS 1 in 1.09s]
+
+Finished running 8 view models in 0 hours 0 minutes and 4.09 seconds (4.09s).
+
+Completed successfully
+
+Done. PASS=8 WARN=0 ERROR=0 SKIP=0 TOTAL=8
+```
+
 ## Step 2: Implement marts and intermediates
 
 Now it's time to create marts and intermediates. We will create a new directory `models/marts` and `models/intermediates`.
@@ -344,8 +371,8 @@ final as (
     select
         product_id,
         count(order_id) as times_ordered,
-        sum(line_total) as gross_sales
-    from order_details
+        sum(total_price) as gross_sales
+    from stg_order_details
     group by all
 )
 
