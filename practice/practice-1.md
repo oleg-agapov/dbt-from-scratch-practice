@@ -32,6 +32,8 @@ source venv/bin/activate
 
 If you use GitHub Codespaces you can skip creating the virtual environment.
 
+![Codespace window](./img/1-3-codespace-window.png)
+
 ## Step 2: Install dbt
 
 To install dbt you need to install two packages:
@@ -43,7 +45,6 @@ Create a new file called `requirements.txt` and add the following lines:
 ```txt
 dbt-core==1.9.*
 dbt-snowflake==1.9.*
-dbt-duckdb==1.9.*
 ```
 
 Now install the packages with:
@@ -60,6 +61,8 @@ dbt --version
 
 This should return the version of dbt you have installed.
 
+![dbt version](./img/1-4-dbt-version.png)
+
 ## Step 3: Bootstrap the project
 
 Before we can start working with dbt, we need to connect to a database. In this course we will use Snowflake as a database.
@@ -70,21 +73,20 @@ To connect to Snowflake you need to login with your temporary account:
 2. Login with the following credentials:
    - Username: (ask the instructor for the username)
    - Password: `p@ssw0rd`
-   and change the password upon first login (please remember this password)
+   
+   It will ask to change the password upon first login (please remember new password).
 3. If you successfully logged in, you can proceed to the next step.
 
-Now we can bootstrap the project with dbt. Run the following command:
+Now we can create a new dbt project. Run the following command:
 
 ```bash
 dbt init
 ```
 
 You gonna need to add the following information:
-1. name of the project, e.g. `dbt_course` (only letters, digits, underscore are allowed)
-2. the adapter you want to use, e.g. `snowflake`
-3. specify the credentials to the database (see example for Snowflake below)
-
-For Snowflake you need to provide the following information:
+1. name of the project, enter `dbt_course` (only letters, digits, underscore are allowed)
+2. the adapter you want to use, in our case `[1] snowflake`
+3. specify the credentials to the database:
 
 | Parameter             | Value                                                     |
 | --------              | -------                                                   |
@@ -98,7 +100,7 @@ For Snowflake you need to provide the following information:
 | schema                | dbt_<your_username>                                       |
 | threads               | 4                                                         |
 
-Now you should have a new directory called `dbt_course` which contains started dbt project.
+Now you should have a new directory called `dbt_course` which contains starter dbt project.
 
 > ⚠️ Also there will be created `logs` directory, which you can safely delete.
 
@@ -130,7 +132,11 @@ cd dbt_course
 You can check correctness of your database credentials by inpecting `profiles.yml` file:
 
 ```bash
+# on your local machine
 open ~/.dbt/profiles.yml
+
+# in Codespaces
+code ~/.dbt/profiles.yml
 ```
 
 There should be `dbt_course` profile with all credentials.
