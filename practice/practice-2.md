@@ -71,7 +71,7 @@ dbt seed
 
 You can reference the seed data in your dbt models using the `{{ ref('seed_name') }}` syntax.
 
-> You can actually check the table in Snowflake by running `SELECT * FROM <seed_name>` in the worksheet.
+> You can actually check the materialized table in Snowflake by running `SELECT * FROM dev.<dbt_username>.employee_status` in Snowflake worksheet.
 
 ## Step 2: Create dbt models
 
@@ -197,7 +197,7 @@ Done. PASS=2 WARN=0 ERROR=0 SKIP=0 TOTAL=2
 
 If for some reason you see errors, check that you are running this command from the `/dbt_course` (command `cd dbt_course` may help you here). Also, make sure that Python's virtual environment is activated.
 
-Now you can check the results of your models in Snowflake by running `SELECT * FROM <model_name>` in the Snowflake UI.
+Now you can check the results of your models in Snowflake by running `SELECT * FROM dev.<dbt_username>.product_info` in the Snowflake UI.
 
 ## Step 4: Improving models
 
