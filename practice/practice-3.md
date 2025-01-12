@@ -456,6 +456,8 @@ Now you can try to build the model:
 dbt run -s +retired_salesmen
 ```
 
+> Note. These two marts are a good starting point for our project. But to make the real use of our data, we probably should implement more robust models, including facts and dimensions tables. For the sake of brevity we skip adding more models, but you can definitely try to implement more of them. As example excersise, think how `fct_orders` or `dim_customers` models might look like.
+
 ## Step 3: Change default configs of the project
 
 Currently all models in our project are materialized as views. This is not the best practice for all models. We can improve our project by changing the default materialization for some models.
@@ -482,6 +484,8 @@ You can check that by running `dbt run`:
 ```bash
 dbt run
 ```
+
+## Commit changes
 
 Commit your changes to the repository:
 
