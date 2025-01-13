@@ -168,15 +168,15 @@ dbt docs serve
 
 You should a main page of the generated docs:
 
-![]()
+![dbt docs](img/4-1-dbt-docs.png)
 
 If you click teal button in lower right, it will reveal our DAG:
 
-![]()
+![DAG](img/4-2-dag.png)
 
 Finally, if you search for documented staging model, you will find the descriptions that we put in schema file:
 
-![]()
+![model docs](img/4-3-model-docs.png)
 
 ## Step 3: Write data tests
 
@@ -229,7 +229,7 @@ dbt test -s stg_dunder_mifflin__orders
 
 You should see something similar:
 
-![]()
+![model tests](img/4-4-tests.png)
 
 As you see, two tests have failed: it seems we have one shipping region that is not from the accepted and some customers that are not defined in customers staging model. Let's fix both problems.
 
