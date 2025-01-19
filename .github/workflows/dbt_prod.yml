@@ -32,7 +32,8 @@ jobs:
         run: dbt deps --profiles-dir ./github --project-dir dbt_course --target ci
 
       - name: Lint SQL files
-        run: sqlfluff lint --config .github/.sqlfluff-ci
+        run: sqlfluff lint --config ${GITHUB_WORKSPACE}/.github/.sqlfluff-ci
+        
 
       - name: Create dbt seeds
         run: dbt seed --profiles-dir ./github --project-dir dbt_course --target prod
