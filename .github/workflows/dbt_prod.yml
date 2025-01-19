@@ -32,7 +32,7 @@ jobs:
         run: dbt deps --profiles-dir ./github --project-dir dbt_course --target ci
 
       - name: Copy dbt profiles
-        run: cp .github/profiles.yml ~/.dbt/profiles.yml
+        run: mkdir ~/.dbt && cp .github/profiles.yml ~/.dbt/profiles.yml
 
       - name: Lint SQL files
         run: sqlfluff lint
