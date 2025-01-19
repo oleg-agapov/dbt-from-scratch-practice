@@ -1,0 +1,13 @@
+dbt_course:
+  target: ci
+  outputs:
+    ci:
+      type: snowflake
+      account: sd96455.us-central1.gcp
+      user: {{ env_var('DBT_USER') }}
+      password: {{ env_var('DBT_PASSWORD') }}
+      role: student__b_role
+      database: dev
+      # Add your username to the schema name!!!
+      schema: dbt_ci_<your_username>
+      warehouse: student_wh
