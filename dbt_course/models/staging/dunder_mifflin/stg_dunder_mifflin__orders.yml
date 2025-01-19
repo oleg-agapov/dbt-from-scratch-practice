@@ -1,0 +1,72 @@
+models:
+  - name: stg_dunder_mifflin__orders
+    description: |
+      This model contains order data from Dunder Mifflin's sales system.
+      
+      If you need information about products sold, refer to `order_details` model.
+    
+    # data_tests:
+    #   - dbt_utils.expression_is_true:
+    #       expression: "shipped_date < required_date"
+    #       config:
+    #         where: "ship_region = 'PA'"
+    #         severity: warn
+    
+    columns:
+      - name: order_id
+        description: "Unique identifier for each order."
+        data_tests:
+          - unique
+          - not_null
+      
+      - name: customer_id
+        description: "Unique identifier for each customer."
+        data_tests:
+          - relationships:
+              to: ref('stg_dunder_mifflin__customers')
+              field: customer_id
+              config:
+                severity: warn
+      
+      - name: employee_id
+        description: "Unique identifier for the employee who handled the order."
+        data_tests:
+          - relationships:
+              to: ref('stg_dunder_mifflin__employees')
+              field: employee_id
+      
+      - name: order_date
+        description: "Date when the order was placed."
+      
+      - name: required_date
+        description: "Date by which the order is required to be delivered."
+      
+      - name: shipped_date
+        description: "Date when the order was shipped."
+      
+      - name: shipper_id
+        description: "Unique identifier for the shipper handling the delivery."
+      
+      - name: freight
+        description: "Cost of shipping the order."
+      
+      - name: ship_name
+        description: "Name of the recipient or the shipping entity."
+      
+      - name: ship_address
+        description: "Address where the order is to be delivered."
+      
+      - name: ship_city
+        description: "City where the order is to be delivered."
+      
+      - name: ship_region
+        description: "Region where the order is to be delivered."
+        data_tests:
+          - accepted_values:
+              values: ['PA', 'NY', 'TN', 'NM', 'WA', 'WY', 'AK', 'OR', 'MO', 'ID', 'NJ', 'DE', 'MT', 'CA']
+      
+      - name: ship_postal_code
+        description: "Postal code of the delivery address."
+      
+      - name: ship_country
+        description: "Country where the order is to be delivered."

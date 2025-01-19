@@ -1,0 +1,23 @@
+models:
+  - name: retired_salesmen
+    description: ""
+    columns:
+      - name: employee_id
+        data_type: number
+        description: ""
+
+      - name: employee_full_name
+        data_type: varchar
+        description: ""
+
+      - name: customer_id
+        data_type: number
+        description: ""
+
+      - name: company_name
+        data_type: varchar
+        description: ""
+
+      - name: status_name
+        data_type: varchar
+        description: ""
