@@ -12,3 +12,4 @@ Describe how you tested the changes. This can include running dbt commands, prov
 - [ ] I have updated the documentation
 - [ ] I have added tests
 - [ ] I have run SQL linter
+- [ ] I have assigned reviewers to this PR
