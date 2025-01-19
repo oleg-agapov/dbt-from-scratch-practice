@@ -31,9 +31,12 @@ jobs:
       
       - name: Install dbt pakages
         run: dbt deps --profiles-dir ./github --project-dir dbt_course --target ci
+      
+      - name: Copy dbt profiles
+        run: cp .github/profiles.yml ~/.dbt/profiles.yml
 
       - name: Lint SQL files
-        run: sqlfluff lint --config ${GITHUB_WORKSPACE}/.github/.sqlfluff-ci
+        run: sqlfluff lint
 
       - name: Create dbt seeds
         run: dbt seed --profiles-dir ./github --project-dir dbt_course --target ci
