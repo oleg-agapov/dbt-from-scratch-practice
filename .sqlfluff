@@ -7,7 +7,6 @@ dialect = snowflake
 apply_dbt_builtins = true
 profile = dbt_course
 project_dir = ./dbt_course
-profiles_dir = ~/.dbt
 
 [sqlfluff:indentation]
 indent_unit = space
