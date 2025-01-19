@@ -1,0 +1,45 @@
+name: dbt CI
+
+on:
+  pull_request:
+    types: [opened, synchronize, ready_for_review]
+
+permissions:
+  contents: read
+
+env:
+  DBT_USER: ${{ secrets.DBT_USER }}
+  DBT_PASSWORD: ${{ secrets.DBT_PASSWORD }}
+
+jobs:
+  run-ci-pipeline:
+    name: Run CI pipeline
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install requirements
+        run: pip install -r requirements.txt
+      
+      - name: Install dbt pakages
+        run: dbt deps
+
+      - name: Lint SQL files
+        run: sqlfluff lint
+
+      - name: Create dbt seeds
+        run: dbt seed --profiles-dir ./github --project-dir dbt_course --target ci
+      
+      - name: Run dbt project in CI target
+        run: dbt run --profiles-dir ./github --project-dir dbt_course --target ci
+      
+      - name: Run dbt tests
+        run: dbt test --profiles-dir ./github --project-dir dbt_course --target ci
