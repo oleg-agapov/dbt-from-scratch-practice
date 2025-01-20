@@ -30,8 +30,9 @@ jobs:
         run: pip install -r requirements.txt
       
       - name: Install dbt pakages
-        run: dbt deps --profiles-dir ./github --project-dir dbt_course --target ci
-      
+        working-directory: ./dbt_course
+        run: dbt deps --target ci
+
       - name: Copy dbt profiles
         run: mkdir ~/.dbt && cp .github/profiles.yml ~/.dbt/profiles.yml
 
@@ -39,10 +40,13 @@ jobs:
         run: sqlfluff lint
 
       - name: Create dbt seeds
-        run: dbt seed --profiles-dir ./github --project-dir dbt_course --target ci
+        working-directory: ./dbt_course
+        run: dbt seed --target prod
       
       - name: Run dbt project in CI target
-        run: dbt run --profiles-dir ./github --project-dir dbt_course --target ci
+        working-directory: ./dbt_course
+        run: dbt run --target prod
       
       - name: Run dbt tests
-        run: dbt test --profiles-dir ./github --project-dir dbt_course --target ci
+        working-directory: ./dbt_course
+        run: dbt test --target prod
