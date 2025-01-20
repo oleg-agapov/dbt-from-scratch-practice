@@ -4,8 +4,8 @@ dbt_course:
     ci:
       type: snowflake
       account: sd96455.us-central1.gcp
-      user: {{ env_var('DBT_USER') }}
-      password: {{ env_var('DBT_PASSWORD') }}
+      user: "{{ env_var('DBT_USER') }}"
+      password: "{{ env_var('DBT_PASSWORD') }}"
       role: student__b_role
       database: dev
       # Add your username to the schema name!!!
@@ -14,8 +14,8 @@ dbt_course:
     prod:
       type: snowflake
       account: sd96455.us-central1.gcp
-      user: {{ env_var('DBT_USER') }}
-      password: {{ env_var('DBT_PASSWORD') }}
+      user: "{{ env_var('DBT_USER') }}"
+      password: "{{ env_var('DBT_PASSWORD') }}"
       role: student__b_role
       database: dev
       schema: dbt_prod_<your_username>
