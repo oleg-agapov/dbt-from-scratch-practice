@@ -2,7 +2,7 @@
 
 In this practice, we will deploy our dbt project to production. We will use Github actions to automate the deployment process.
 
-🎯 Goal: learn Pull Requests template, SQL linting, CI/CD pipelines and deploying of dbt project via Github Actions.
+🎯 Goal: learn Pull Requests template, SQL linting, CI pipeline and deploying of dbt project via Github Actions.
 
 ## Step 1: Add PR template
 
@@ -101,7 +101,7 @@ dialect = snowflake
 apply_dbt_builtins = true
 profile = dbt_course
 project_dir = ./dbt_course
-profiles_dir = ~/.dbt
+
 
 [sqlfluff:indentation]
 indent_unit = space
@@ -186,19 +186,27 @@ jobs:
         run: pip install -r requirements.txt
       
       - name: Install dbt pakages
-        run: dbt deps
+        working-directory: ./dbt_course
+        run: dbt deps --target ci
+
+      - name: Copy dbt profiles
+        run: mkdir ~/.dbt && cp .github/profiles.yml ~/.dbt/profiles.yml
 
       - name: Lint SQL files
         run: sqlfluff lint
 
       - name: Create dbt seeds
-        run: dbt seed --profiles-dir ./github --project-dir dbt_course --target ci
+        working-directory: ./dbt_course
+        run: dbt seed --target prod
       
       - name: Run dbt project in CI target
-        run: dbt run --profiles-dir ./github --project-dir dbt_course --target ci
+        working-directory: ./dbt_course
+        run: dbt run --target prod
       
       - name: Run dbt tests
-        run: dbt test --profiles-dir ./github --project-dir dbt_course --target ci
+        working-directory: ./dbt_course
+        run: dbt test --target prod
+
 ```
 
 This pipeline will do the following:
@@ -222,7 +230,7 @@ dbt_course:
       role: student__b_role
       database: dev
       # Add your username to the schema name!!!
-      schema: dbt_ci_<your_username>
+      schema: dbt_ci__your_username
       warehouse: student_wh
 ```
 
@@ -235,14 +243,116 @@ Now you need to add your Snowflake credentials to the Github repository secrets.
 Now you can push the changes to the main branch:
 
 ```bash
-git add .
+git add .github
 git commit -m "Add CI pipeline"
 git push
 ```
 
+Now if you create a new PR with code changes, new pipeline should run automatically and check your code for errors.
+
+
+
+Task: change something in your repository and create a new PR to see the CI pipeline in action.
 
 ## Step 4: Deploy to Github actions
 
+Finally, let's deploy our dbt project to production using Github Actions. We will create a new workflow that will run the dbt project in the production target.
 
-## Step 5: Commit changes
+First, let's add new profile to the `.github/profiles.yml` file:
 
+```yaml
+dbt_course:
+  target: ci
+  outputs:
+    ci:
+      ...
+    
+    prod:
+      type: snowflake
+      account: sd96455.us-central1.gcp
+      user: {{ env_var('DBT_USER') }}
+      password: {{ env_var('DBT_PASSWORD') }}
+      role: student__b_role
+      database: dev
+      schema: dbt_prod__your_username
+      warehouse: student_wh
+```
+
+> ⚠️ Note: we will still be using DEV database here, but in a real-life scenario, you would have a separate database for production. Also, in produciton we usually have a different service account, role, and warehouse.
+
+Next, we can create a new workflow file `.github/workflows/dbt_prod.yml` with the following content:
+
+```yaml
+name: dbt Production run
+
+on:
+  workflow_dispatch: # This event allows you to run the workflow manually
+
+permissions:
+  contents: read
+
+env:
+  DBT_USER: ${{ secrets.DBT_USER }}
+  DBT_PASSWORD: ${{ secrets.DBT_PASSWORD }}
+
+jobs:
+  run-production-pipeline:
+    name: Run dbt prodution pipeline
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install requirements
+        run: pip install -r requirements.txt
+      
+      - name: Install dbt pakages
+        working-directory: ./dbt_course
+        run: dbt deps --target ci
+
+      - name: Copy dbt profiles
+        run: mkdir ~/.dbt && cp .github/profiles.yml ~/.dbt/profiles.yml
+
+      - name: Lint SQL files
+        run: sqlfluff lint
+
+      - name: Create dbt seeds
+        working-directory: ./dbt_course
+        run: dbt seed --target prod
+      
+      - name: Run dbt project in CI target
+        working-directory: ./dbt_course
+        run: dbt run --target prod
+      
+      - name: Run dbt tests
+        working-directory: ./dbt_course
+        run: dbt test --target prod
+
+```
+
+This pipeline will do the same steps as the CI pipeline, but it will run the dbt project in the production target.
+
+Also, pay attention to the `on` section of the workflow file. We are using `workflow_dispatch` event here, which allows you to run the workflow manually. You can trigger this workflow from the Github Actions tab in your repository. In real project you could also add a cron schedule to run this workflow automatically.
+
+Now you can push the changes to the main branch:
+
+```bash
+git add .github/
+git commit -m "Add production deployment"
+git push
+```
+
+Now if you go to "Actions" tab in your Github repository, you will see two new workflows: `dbt CI` and `dbt Production run`.
+
+![Manually triggering the workflow](./img/6-4.png)
+
+You can run the `dbt Production run` workflow manually to check how it works.
+
+![Succesful run](./img/6-5.png)
