@@ -9,7 +9,7 @@ dbt_course:
       role: student__b_role
       database: dev
       # Add your username to the schema name!!!
-      schema: dbt_ci_<your_username>
+      schema: dbt_ci_oleg
       warehouse: student_wh
     prod:
       type: snowflake
@@ -18,5 +18,5 @@ dbt_course:
       password: "{{ env_var('DBT_PASSWORD') }}"
       role: student__b_role
       database: dev
-      schema: dbt_prod_<your_username>
+      schema: dbt_prod_oleg
       warehouse: student_wh
