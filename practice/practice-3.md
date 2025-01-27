@@ -6,7 +6,7 @@ In this practice, we will improve the project by refactoring the models to model
 
 ## Step 1: Implement staging layer
 
-Staging layer id one-to-one reflection of source tables in the data warehouse.
+Staging layer is one-to-one reflection of source tables in the data warehouse.
 
 Create a new directory `models/staging`. Inside of staging folder we usually create structure that reflects our datasource. In our case we could create a subfolder called `/dunder_mifflin`, because all our data is coming from that source.
 
@@ -16,7 +16,7 @@ Inside of `models/staging/dunder_mifflin` let's create several files:
 <details>
 <summary><b>dunder_mifflin__sources.yml</b></summary>
 
-> This is the same file as in the previous practice. You can just copy existing file from the previous practice.
+> This is the same file as in the previous practice. You can just move existing file from `/models` folder.
 
 </details>
 
@@ -254,8 +254,6 @@ You can now try to run `dbt run` and see if all models are created successfully:
 dbt run -s staging
 ```
 
-> Note: Existing `sources.yml` can be deleted.
-
 You should see something like this:
 ```bash
 ...
@@ -289,174 +287,75 @@ Now it's time to create marts and intermediates. We will create a new directory 
 
 Marts and intermediates are split by business domain, for example `sales`, `product`, `core` etc.
 
-For this task let's refactor `product_info` model from previous practice. This model is clearly belongs to marts layer because it's a model used to answer business questions.
+Let's refactor both `top_products` and `top_salesmen` models from previous practice.
+
+First of all, both models should belong to `marts` layer. Second, we could merge both models into one because they use `order_details` table as a base, but use different joins and aggregations. To make it happen, we will re-grain the table to order details level, meaning we will remove aggregations from the model. Such types of aggregations can be done in BI tool, rather than in dbt.
 
 Here is how we can do it:
 
 1. Change references from `source()` to `ref()` macros (referencing staging models)
 2. Rearrange CTEs for better readability
-3. Extract common logic into intermediate models
 
 Here is the refactored model:
 
 <details>
-<summary><b>models/marts/product/product_info.sql</b></summary>
-
-```sql
-with 
-
--- Import CTEs
-
-stg_products as (
-    select * from {{ ref('stg_dunder_mifflin__products') }}
-),
-
-stg_categories as (
-  select
-      category_id,
-      category_name
-  from {{ ref('stg_dunder_mifflin__categories') }}
-),
-
-stg_suppliers as (
-  select
-      supplier_id,
-      company_name
-  from {{ ref('stg_dunder_mifflin__suppliers') }}
-),
-
--- Logic CTEs
-
-orders_aggregated_by_products as (
-  select
-      product_id,
-      times_ordered,
-      gross_sales
-  from {{ ref('int_orders_aggregated_by_products') }}
-),
-
-final as (
-    select
-      stg_products.product_id,
-      stg_products.product_name,
-      stg_categories.category_name,
-      stg_suppliers.company_name as supplier_name,
-      stg_products.units_in_stock,
-      stg_products.units_on_order,
-      stg_products.discontinued,
-      orders_aggregated_by_products.times_ordered,
-      orders_aggregated_by_products.gross_sales
-    from stg_products
-    left join orders_aggregated_by_products 
-        on orders_aggregated_by_products.product_id = stg_products.product_id
-    left join stg_categories 
-        on stg_categories.category_id = stg_products.category_id
-    left join stg_suppliers 
-        on stg_suppliers.supplier_id = stg_products.supplier_id
-)
-
-select * from final
-```
-</details>
-
-<details>
-<summary><b>models/intermediates/sales/int_orders_aggregated_by_products.sql</b></summary>
-
-```sql
-with stg_order_details as (
-    select * from {{ ref('stg_dunder_mifflin__order_details') }}
-),
-
-final as (
-    select
-        product_id,
-        count(order_id) as times_ordered,
-        sum(total_price) as gross_sales
-    from stg_order_details
-    group by all
-)
-
-select * from final
-```
-</details>
-
-As you can see, we refactored original `orders` CTE to a separate intermediate model as it may be used in other models as well.
-
-> ⚠️ Note: before running this new model, make sure to delete the old `product_info` and `retired_salesmen` models from the project, otherwise you'll get an error. Every model should be unique in the whole project.
-
-
-To check that everything is working correctly, run `dbt run` with the following command:
-
-```bash
-dbt run -s +product_info
-```
-
-As you can see, we use `+` sign to run the model and all its upstream dependencies.
-
-Now let's similarly refactor `retired_salesmen` model to marts layer.
-
-<details>
-<summary><b>models/marts/core/retired_salesmen.sql</b></summary>
+<summary><b>models/marts/finance/fct_order_details.sql</b></summary>
 
 ```sql
 with
 
 -- Import CTEs
 
-stg_employees as (
-    select * from {{ ref('stg_dunder_mifflin__employees') }}
+stg_dunder_mifflin__order_details as (
+    select *
+    from raw.dunder_mifflin.order_details
 ),
 
-stg_orders as (
-    select * from {{ ref('stg_dunder_mifflin__orders') }}
+stg_dunder_mifflin__orders as (
+    select *
+    from raw.dunder_mifflin.order_details
 ),
 
-stg_customers as (
-    select * from {{ ref('stg_dunder_mifflin__customers') }}
+stg_dunder_mifflin__products as (
+    select *
+    from raw.dunder_mifflin.products
 ),
 
-seed_employee_status as (
-    select * from {{ ref('employee_status') }}
+stg_dunder_mifflin__employees as (
+    select *
+    from raw.dunder_mifflin.employees
 ),
 
 -- Logic CTEs
 
-last_customers_per_employee as (
-    select 
-        employee_id, 
-        customer_id,    
-    from stg_orders
-    qualify dense_rank() over(partition by employee_id order by order_date desc, order_id) <= 5
-),
-
 final as (
     select
-        last_customers_per_employee.employee_id,
-        stg_employees.first_name || ' ' || stg_employees.last_name as employee_full_name,
-        last_customers_per_employee.customer_id,
-        stg_customers.company_name,
-        seed_employee_status.status_name
-    from last_customers_per_employee
-    left join stg_employees 
-        on stg_employees.employee_id = last_customers_per_employee.employee_id
-    left join seed_employee_status 
-        on seed_employee_status.status_id = stg_employees.employee_status_id
-    left join stg_customers
-        on stg_customers.customer_id = last_customers_per_employee.customer_id
-    where seed_employee_status.status_name in ('Suspended', 'Terminated', 'Retired')
+        order_details.product_id,
+        products.product_name,
+        orders.employee_id,
+        employees.first_name,
+        employees.last_name,
+        order_details.line_total as total_orders
+    from raw.dunder_mifflin.order_details
+    left join raw.dunder_mifflin.orders on orders.order_id = order_details.order_id
+    left join raw.dunder_mifflin.products on order_details.product_id = products.product_id
+    left join raw.dunder_mifflin.employees on orders.employee_id = employees.employee_id
 )
 
 select * from final
 ```
 </details>
 
-Now you can try to build the model:
+Now you can freely delete exising `top_products` and `top_salesmen` models.
+
+To check that everything is working correctly, run `dbt run` with the following command:
 
 ```bash
-dbt run -s +retired_salesmen
+dbt run -s +fct_order_details
 ```
 
-> Note. These two marts are a good starting point for our project. But to make the real use of our data, we probably should implement more robust models, including facts and dimensions tables. For the sake of brevity we skip adding more models, but you can definitely try to implement more of them. As example excersise, think how `fct_orders` or `dim_customers` models might look like.
+As you can see, we use `+` sign to run the model and all its upstream dependencies.
+
 
 ## Step 3: Change default configs of the project
 
@@ -479,11 +378,15 @@ models:
 
 This configuration will make all models in `staging` and `intermediates` layers materialized as views, and all models in `marts` layer materialized as tables.
 
+> Note: We don't have intermediate models in this project, but we still can setup default materialization for them.
+
 You can check that by running `dbt run`:
 
 ```bash
 dbt run
 ```
+
+You should see that marts are now materialized as tables, not views.
 
 ## Commit changes
 
