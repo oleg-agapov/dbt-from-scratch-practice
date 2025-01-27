@@ -1,4 +1,2 @@
 dbt-core==1.9.*
 dbt-snowflake==1.9.*
-sqlfluff
-sqlfluff-templater-dbt

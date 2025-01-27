@@ -1,6 +1,0 @@
-seeds:
-  - name: employee_status
-    config:
-      columns_types:
-        status_id: int
-        status_name: varchar
