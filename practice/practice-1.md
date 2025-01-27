@@ -30,7 +30,7 @@ source venv/bin/activate
 
 > ⚠️ Note: don't forget to activate the virtual environment every time you start a new terminal session.
 
-If you use GitHub Codespaces you can skip creating the virtual environment.
+If you use GitHub Codespaces you can skip creating the virtual environment. Codespaces already have Python installed and you can install packages globally.
 
 ![Codespace window](./img/1-3-codespace-window.png)
 
