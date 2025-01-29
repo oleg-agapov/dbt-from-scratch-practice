@@ -98,7 +98,7 @@ You gonna need to add the following information:
 | warehouse             | student_wh                                                |
 | database              | dev                                                       |
 | schema                | dbt_<your_username>                                       |
-| threads               | 4                                                         |
+| threads               | 1                                                         |
 
 Now you should have a new directory called `dbt_course` which contains starter dbt project.
 
