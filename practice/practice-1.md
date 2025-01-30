@@ -76,6 +76,7 @@ To connect to Snowflake you need to login with your temporary account:
    
    It will ask to change the password upon first login (please remember new password).
 3. If you successfully logged in, you can proceed to the next step.
+4. During the setup you will need to setup DUO authentication. Just follow the instructions.
 
 Now we can create a new dbt project. Run the following command:
 
@@ -115,6 +116,37 @@ And finally, check that everything is working by running the following command:
 ```bash
 dbt debug
 ```
+
+When running this command, it will send you push notification to Duo. You need confirm that this is you.
+
+To avoid multiple push requests to your Duo app, you should add additional property for your profiles. First step is to open profiles file:
+
+```bash
+code  ~/.dbt/profiles.yml
+```
+
+Next, add `authenticator: username_password_mfa` to the configuration, like so:
+
+```yaml
+dbt_course:
+  outputs:
+    dev:
+      account: sd96455.us-central1.gcp
+      # add the following line
+      authenticator: username_password_mfa
+      #
+      database: dev
+      password: ...
+      role: student__b_role
+      schema: ...
+      threads: 1
+      type: snowflake
+      user: ...
+      warehouse: student_wh
+  target: dev
+```
+
+From now on, you only need to confirm push notification only for the first command, all subsequents commands will not require push confirmation.
 
 ## Troubleshooting database connection
 
