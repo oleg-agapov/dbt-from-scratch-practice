@@ -1,0 +1,5 @@
+status_id,status_name
+0,Active
+-1,Suspended
+-2,Terminated
+-3,Retired
