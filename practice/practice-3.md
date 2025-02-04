@@ -356,6 +356,7 @@ dbt run -s +fct_order_details
 
 As you can see, we use `+` sign to run the model and all its upstream dependencies.
 
+Existing `top_products` and `top_salesmen` models can be removed now.
 
 ## Step 3: Change default configs of the project
 
