@@ -308,22 +308,22 @@ with
 
 stg_dunder_mifflin__order_details as (
     select *
-    from raw.dunder_mifflin.order_details
+    from {{ ref('stg_dunder_mifflin__order_details') }}
 ),
 
 stg_dunder_mifflin__orders as (
     select *
-    from raw.dunder_mifflin.order_details
+    from {{ ref('stg_dunder_mifflin__order_details') }}
 ),
 
 stg_dunder_mifflin__products as (
     select *
-    from raw.dunder_mifflin.products
+    from {{ ref('stg_dunder_mifflin__products') }}
 ),
 
 stg_dunder_mifflin__employees as (
     select *
-    from raw.dunder_mifflin.employees
+    from {{ ref('stg_dunder_mifflin__employees') }}
 ),
 
 -- Logic CTEs
