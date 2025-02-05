@@ -32,65 +32,30 @@ models:
       - name: ship_country
 ```
 
-For now, let's skip other staging files and proceed with intermediates and marts.
+For now, let's skip other staging files and add schema to mart model.
 
-Create the following schemas:
+Create the following schema:
 
 <details>
-<summary><b>models/intermediates/sales/int_orders_aggregated_by_products.yaml</b></summary>
+<summary><b>models/marts/finance/fct_order_details.yaml</b></summary>
 
 ```yaml
 models:
-  - name: int_orders_aggregated_by_products
-    columns:
-      - name: product_id
-      - name: times_ordered
-      - name: gross_sales
-```
-
-</details>
-
-<details>
-<summary><b>models/marts/core/retired_salesmen.yml</b></summary>
-
-```yaml
-models:
-  - name: retired_salesmen
-    columns:
-      - name: employee_id
-      - name: employee_full_name
-      - name: customer_id
-      - name: company_name
-      - name: status_name
-```
-
-</details>
-
-<details>
-<summary><b>models/marts/product/product_info.yml</b></summary>
-
-```yaml
-models:
-  - name: product_info
+  - name: fct_order_details
     columns:
       - name: product_id
       - name: product_name
-      - name: category_name
-      - name: supplier_name
-      - name: units_in_stock
-      - name: units_on_order
-      - name: discontinued
-      - name: times_ordered
-      - name: gross_sales
+      - name: employee_id
+      - name: first_name
+      - name: last_name
+      - name: total_orders
 ```
 
 </details>
 
+Remember, those files are only metadata explaining our models. Even if you include only some columns or some models, your project will still work. However, it is a best practice to describe all models and columns in your project.
 
-Remember, those files are only metadata explaining our models. Even if you describe only some columns and some models, your project will still work. However, it is a best practice to describe all models and columns in your project.
-
-> Note: we will come back to writing more schema files in the following week using some advanced tools.
-
+> Note: we will come back to creating other schema files in the following week using more advanced tooling.
 
 ## Step 2: Create documentation
 
