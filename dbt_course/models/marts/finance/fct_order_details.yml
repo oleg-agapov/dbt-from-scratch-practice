@@ -1,0 +1,28 @@
+models:
+  - name: fct_order_details
+    description: This table contains the details of the orders.
+    
+    columns:
+      - name: product_id
+        data_type: number
+        description: Unique identifier for the product.
+
+      - name: product_name
+        data_type: varchar
+        description: Name of the product.
+
+      - name: employee_id
+        data_type: number
+        description: Unique identifier for the employee.
+
+      - name: first_name
+        data_type: varchar
+        description: First name of the employee.
+
+      - name: last_name
+        data_type: varchar
+        description: Last name of the employee.
+
+      - name: total_orders
+        data_type: number
+        description: Total number of orders for the product.
